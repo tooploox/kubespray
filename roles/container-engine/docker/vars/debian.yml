@@ -4,8 +4,7 @@ docker_kernel_min_version: '3.10'
 # https://download.docker.com/linux/debian/
 # https://apt.dockerproject.org/repo/dists/debian-wheezy/main/filelist
 docker_versioned_pkg:
-  'tooploox': docker-ce=5:18.09.3~3-0*
-  'latest': docker-ce
+  'latest': docker-ce=5:18.09.3~3-0*
   '1.11': docker-engine=1.11.2-0~{{ ansible_distribution_release|lower }}
   '1.12': docker-engine=1.12.6-0~debian-{{ ansible_distribution_release|lower }}
   '1.13': docker-engine=1.13.1-0~debian-{{ ansible_distribution_release|lower }}
@@ -23,7 +22,7 @@ docker_package_info:
   pkg_mgr: apt
   pkgs:
     - name: "{{ docker_versioned_pkg[docker_version | string] }}"
-      force: yes
+      force: no
 
 docker_repo_key_info:
   pkg_key: apt_key
