@@ -3,6 +3,7 @@ docker_kernel_min_version: '3.10'
 
 # https://download.docker.com/linux/ubuntu/
 docker_versioned_pkg:
+  'tooploox': docker-ce=5:18.09.3~3-0*
   'latest': docker-ce
   '1.11': docker-engine=1.11.2-0~{{ ansible_distribution_release|lower }}
   '1.12': docker-engine=1.12.6-0~ubuntu-{{ ansible_distribution_release|lower }}
