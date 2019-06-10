@@ -16,14 +16,13 @@ most modern installs of OpenStack that support the basic services.
 - [ELASTX](https://elastx.se/)
 - [EnterCloudSuite](https://www.entercloudsuite.com/)
 - [FugaCloud](https://fuga.cloud/)
+- [Open Telekom Cloud](https://cloud.telekom.de/) : requires to set the variable `wait_for_floatingip = "true"` in your cluster.tf
 - [OVH](https://www.ovh.com/)
 - [Rackspace](https://www.rackspace.com/)
 - [Ultimum](https://ultimum.io/)
 - [VexxHost](https://vexxhost.com/)
 - [Zetta](https://www.zetta.io/)
 
-### Known incompatible public clouds
-- T-Systems / Open Telekom Cloud: requires `wait_until_associated`
 
 ## Approach
 The terraform configuration inspects variables found in
@@ -243,7 +242,10 @@ For your cluster, edit `inventory/$CLUSTER/cluster.tf`.
 |`supplementary_master_groups` | To add ansible groups to the masters, such as `kube-node` for tainting them as nodes, empty by default. |
 |`supplementary_node_groups` | To add ansible groups to the nodes, such as `kube-ingress` for running ingress controller pods, empty by default. |
 |`bastion_allowed_remote_ips` | List of CIDR allowed to initiate a SSH connection, `["0.0.0.0/0"]` by default |
+|`master_allowed_remote_ips` | List of CIDR blocks allowed to initiate an API connection, `["0.0.0.0/0"]` by default |
+|`k8s_allowed_remote_ips` | List of CIDR allowed to initiate a SSH connection, empty by default |
 |`worker_allowed_ports` | List of ports to open on worker nodes, `[{ "protocol" = "tcp", "port_range_min" = 30000, "port_range_max" = 32767, "remote_ip_prefix" = "0.0.0.0/0"}]` by default |
+|`wait_for_floatingip` | Let Terraform poll the instance until the floating IP has been associated, `false` by default. |
 
 #### Terraform state files
 
@@ -322,6 +324,30 @@ $ ssh-add ~/.ssh/id_rsa
 ```
 
 If you have deployed and destroyed a previous iteration of your cluster, you will need to clear out any stale keys from your SSH "known hosts" file ( `~/.ssh/known_hosts`).
+
+#### Metadata variables
+
+The [python script](../terraform.py) that reads the
+generated`.tfstate` file to generate a dynamic inventory recognizes
+some variables within a "metadata" block, defined in a "resource"
+block (example):
+
+```
+resource "openstack_compute_instance_v2" "example" {
+    ...
+    metadata {
+        ssh_user = "ubuntu"
+        prefer_ipv6 = true
+	python_bin = "/usr/bin/python3"
+    }
+    ...
+}
+```
+
+As the example shows, these let you define the SSH username for
+Ansible, a Python binary which is needed by Ansible if
+`/usr/bin/python` doesn't exist, and whether the IPv6 address of the
+instance should be preferred over IPv4.
 
 #### Bastion host
 

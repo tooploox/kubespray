@@ -130,7 +130,7 @@ metadata:
   name: kubernetes-dashboard
   namespace: kube-system
 spec:
-  replicas: 1
+  replicas: {{ dashboard_replicas }}
   revisionHistoryLimit: 10
   selector:
     matchLabels:
@@ -184,8 +184,6 @@ spec:
             scheme: HTTPS
             path: /
             port: 8443
-          initialDelaySeconds: 30
-          timeoutSeconds: 30
       volumes:
       - name: kubernetes-dashboard-certs
         secret:

@@ -17,7 +17,16 @@ spec:
   privileged: false
   allowPrivilegeEscalation: false
   requiredDropCapabilities:
-    - ALL
+    - SETPCAP
+    - MKNOD
+    - AUDIT_WRITE
+    - NET_RAW
+    - DAC_OVERRIDE
+    - FOWNER
+    - FSETID
+    - KILL
+    - SYS_CHROOT
+    - SETFCAP
   volumes:
     - 'configMap'
     - 'emptyDir'
@@ -26,6 +35,7 @@ spec:
     - 'downwardAPI'
     - 'persistentVolumeClaim'
   hostNetwork: true
+  dnsPolicy: ClusterFirstWithHostNet
   hostPorts:
   - min: 5000
     max: 5000
