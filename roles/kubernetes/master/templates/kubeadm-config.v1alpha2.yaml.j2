@@ -14,9 +14,9 @@ etcd:
 {% for endpoint in etcd_access_addresses.split(',') %}
       - {{ endpoint }}
 {% endfor %}
-      caFile: {{ etcd_cert_dir }}/ca.pem
-      certFile: {{ etcd_cert_dir }}/node-{{ inventory_hostname }}.pem
-      keyFile: {{ etcd_cert_dir }}/node-{{ inventory_hostname }}-key.pem
+      caFile: {{ etcd_cert_dir }}/{{ kube_etcd_cacert_file }}
+      certFile: {{ etcd_cert_dir }}/{{ kube_etcd_cert_file }}
+      keyFile: {{ etcd_cert_dir }}/{{ kube_etcd_key_file }}
 networking:
   dnsDomain: {{ dns_domain }}
   serviceSubnet: {{ kube_service_addresses }}
@@ -54,7 +54,7 @@ apiServerExtraArgs:
   endpoint-reconciler-type: lease
 {% endif %}
 {% if etcd_events_cluster_enabled %}
-  etcd-servers-overrides: "/events#{{ etcd_events_access_addresses }}"
+  etcd-servers-overrides: "/events#{{ etcd_events_access_addresses_semicolon }}"
 {% endif %}
   service-node-port-range: {{ kube_apiserver_node_port_range }}
   kubelet-preferred-address-types: "{{ kubelet_preferred_address_types }}"
@@ -84,10 +84,10 @@ apiServerExtraArgs:
   oidc-groups-claim: {{ kube_oidc_groups_claim }}
 {%   endif %}
 {%   if kube_oidc_username_prefix is defined %}
-  oidc-username-prefix: {{ kube_oidc_username_prefix }}
+  oidc-username-prefix: "{{ kube_oidc_username_prefix }}"
 {%   endif %}
 {%   if kube_oidc_groups_prefix is defined %}
-  oidc-groups-prefix: {{ kube_oidc_groups_prefix }}
+  oidc-groups-prefix: "{{ kube_oidc_groups_prefix }}"
 {%   endif %}
 {% endif %}
 {% if kube_webhook_token_auth|default(false) %}
@@ -211,7 +211,7 @@ schedulerExtraArgs:
 {% endfor %}
 {% endif %}
 apiServerCertSANs:
-{% for san in apiserver_sans.split() | unique %}
+{% for san in apiserver_sans %}
   - {{ san }}
 {% endfor %}
 certificatesDir: {{ kube_cert_dir }}
@@ -221,18 +221,14 @@ nodeRegistration:
 {% if kube_override_hostname|default('') %}
   name: {{ kube_override_hostname }}
 {% endif %}
-{% if inventory_hostname in groups['kube-master'] and inventory_hostname not in groups['kube-node'] %}
+{% if inventory_hostname not in groups['kube-node'] %}
   taints:
   - effect: NoSchedule
     key: node-role.kubernetes.io/master
-{% endif %}
-{% if container_manager == 'crio' %}
-  criSocket: /var/run/crio/crio.sock
-{% elif container_manager == 'rkt' %}
-  criSocket: /var/run/rkt.sock
 {% else %}
-  criSocket: /var/run/dockershim.sock
+  taints: {}
 {% endif %}
+  criSocket: {{ cri_socket }}
 {% if dynamic_kubelet_configuration %}
 featureGates:
   DynamicKubeletConfig: true
