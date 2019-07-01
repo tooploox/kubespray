@@ -4,7 +4,7 @@ docker_kernel_min_version: '3.10'
 # https://download.docker.com/linux/debian/
 # https://apt.dockerproject.org/repo/dists/debian-wheezy/main/filelist
 docker_versioned_pkg:
-  'latest': docker-ce
+
   '1.13': docker-engine=1.13.1-0~debian-{{ ansible_distribution_release|lower }}
   '17.03': docker-ce=17.03.2~ce-0~debian-{{ ansible_distribution_release|lower }}
   '17.06': docker-ce=17.06.2~ce-0~debian
@@ -15,6 +15,7 @@ docker_versioned_pkg:
   '18.09': docker-ce=5:18.09.6~3-0~debian-{{ ansible_distribution_release|lower }}
   'stable': docker-ce=5:18.09.6~3-0~debian-{{ ansible_distribution_release|lower }}
   'edge': docker-ce=5:18.09.6~3-0~debian-{{ ansible_distribution_release|lower }}
+  'latest': docker-ce=5:18.09.6~3-0~debian-{{ ansible_distribution_release|lower }}
 
 docker_package_info:
   pkg_mgr: apt
